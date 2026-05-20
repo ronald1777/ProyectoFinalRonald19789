@@ -59,11 +59,6 @@ router.post('/', (req, res) => {
   }
 });
 
-/* ─────────────────────────────────────────────
-   PUT /api/items/:id
-   Actualiza los campos de un item existente.
-   Solo actualiza los campos que vienen en el body.
-───────────────────────────────────────────── */
 router.put('/:id', (req, res) => {
   try {
     const { id } = req.params;
