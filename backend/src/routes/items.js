@@ -4,12 +4,7 @@ import { randomUUID } from 'crypto';
 
 const router = Router();
 
-/* ─────────────────────────────────────────────
-   GET /api/items
-   Devuelve todos los items con activo = 1.
-   Los atributos se parsean de TEXT → objeto JSON
-   antes de enviarlos al cliente.
-───────────────────────────────────────────── */
+
 router.get('/', (req, res) => {
   try {
     const rows = db.prepare('SELECT * FROM items WHERE activo = 1').all();
@@ -27,12 +22,6 @@ router.get('/', (req, res) => {
   }
 });
 
-/* ─────────────────────────────────────────────
-   POST /api/items
-   Crea un item nuevo. El id puede venir del cliente
-   (UUID generado con crypto.randomUUID()) o se genera
-   en el servidor si no viene.
-───────────────────────────────────────────── */
 router.post('/', (req, res) => {
   try {
     const {
@@ -112,11 +101,7 @@ router.put('/:id', (req, res) => {
   }
 });
 
-/* ─────────────────────────────────────────────
-   DELETE /api/items/:id
-   Soft delete: pone activo = 0.
-   No borra la fila para poder recuperarla después.
-───────────────────────────────────────────── */
+
 router.delete('/:id', (req, res) => {
   try {
     const { id } = req.params;
@@ -130,11 +115,6 @@ router.delete('/:id', (req, res) => {
   }
 });
 
-/* ─────────────────────────────────────────────
-   POST /api/items/:id/registro
-   Crea un registro de actividad vinculado al item.
-   Tabla: registros (id, itemId, fecha, valor, notas)
-───────────────────────────────────────────── */
 router.post('/:id/registro', (req, res) => {
   try {
     const { id: itemId } = req.params;
