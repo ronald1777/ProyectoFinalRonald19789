@@ -1,20 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 import { SEED_MANGAS } from '../utils/seedData';
 
-/**
- * StorageContext — Modo Híbrido
- *
- * Expone:
- *   modo          → 'api' | 'local'
- *   setModo(modo) → cambia el modo y lo persiste en localStorage
- *   obtenerItems()    async → devuelve el array de items según el modo activo
- *   guardarItem(item) async → crea o actualiza según el modo activo
- *   eliminarItem(id)  async → archiva (soft delete) según el modo activo
- *
- * REGLA de la rúbrica: los componentes NO tienen if(modo).
- * Solo llaman estas funciones y el contexto decide internamente.
- */
-
 const API_BASE = 'http://localhost:3000/api/items';
 const LS_KEY   = 'items';
 
