@@ -1,127 +1,97 @@
-import { ESTADOS, CATEGORIAS } from '../utils/itemUtils';
+import { useRef } from 'react';
+import { ESTADOS, calcularProgreso, COLOR_ESTADO } from '../utils/itemUtils';
+import { getCategoriaById } from '../utils/categorias';
+import { useStorage } from '../context/StorageContext';
 
-/**
- * ItemCard
- * Renderiza un solo Item con:
- * - Todos sus datos visibles.
- * - Botón "Editar" → llama onEditar(item).
- * - Botón "Archivar" → llama onArchivar(item.id).
- *   (soft delete: cambia activo a false, no borra el registro)
- */
-export default function ItemCard({ item, onEditar, onArchivar }) {
+export default function ItemCard({ item, onEditar, onRecargar, isLast, lastRef }) {
+  const { eliminarItem } = useStorage();
+  const categoria = getCategoriaById(item.categoriaId);
+
   const estadoLabel = ESTADOS.find((e) => e.value === item.estado)?.label || item.estado;
-  const categoriaLabel = CATEGORIAS.find((c) => c.value === item.categoriaId)?.label || item.categoriaId;
+  const { capLeidos = 0, capTotales = 0, portadaUrl = '' } = item.atributos || {};
+  const progreso   = calcularProgreso(item.atributos);
+  const colorBarra = COLOR_ESTADO[item.estado] || 'var(--accent)';
 
-  const colorEstado = {
-    pendiente: 'var(--warning)',
-    en_progreso: 'var(--accent2)',
-    completado: 'var(--success)',
-    archivado: 'var(--text-muted)',
-  }[item.estado] || 'var(--text-muted)';
+  const colorBadge = {
+    leyendo:    { color: 'var(--accent)',   bg: 'var(--accent-bg)' },
+    completado: { color: 'var(--success)',  bg: 'var(--success-bg)' },
+    pendiente:  { color: 'var(--warning)',  bg: 'var(--warning-bg)' },
+    dropped:    { color: 'var(--danger)',   bg: 'var(--danger-bg)' },
+  }[item.estado] || { color: 'var(--text-muted)', bg: 'transparent' };
+
+  async function handleArchivar() {
+    await eliminarItem(item.id);
+    onRecargar();
+  }
 
   return (
-    <article style={styles.card}>
-      {/* Header */}
-      <div style={styles.header}>
-        <span style={styles.categoria}>{categoriaLabel}</span>
-        <span style={{ ...styles.badge, color: colorEstado, borderColor: colorEstado }}>
+    // useRef #3 (scroll) — lastRef llega del padre; se adjunta al último card
+    <article ref={isLast ? lastRef : null} style={styles.card}>
+
+      {/* Portada */}
+      <div style={styles.coverWrap}>
+        {portadaUrl
+          ? <img src={portadaUrl} alt={item.nombre} style={styles.coverImg}
+              onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+          : null}
+        <div style={{ ...styles.coverFallback, display: portadaUrl ? 'none' : 'flex' }}>📚</div>
+        <span style={{ ...styles.estadoBadge, color: colorBadge.color, background: colorBadge.bg }}>
           {estadoLabel}
         </span>
       </div>
 
-      {/* Nombre */}
-      <h3 style={styles.nombre}>{item.nombre}</h3>
+      {/* Cuerpo */}
+      <div style={styles.body}>
+        <h3 style={styles.titulo}>{item.nombre}</h3>
+        {item.notas && <p style={styles.autor}>{item.notas}</p>}
 
-      {/* Meta */}
-      <div style={styles.meta}>
-        {item.puntuacion !== null && (
-          <span>⭐ {item.puntuacion}/10</span>
-        )}
-        <span style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
-          {new Date(item.fechaRegistro).toLocaleDateString('es-GT')}
+        {/* Badge de categoría con color propio */}
+        <span style={{ ...styles.genero, background: categoria.color + '22', color: categoria.color }}>
+          {categoria.emoji} {categoria.nombre}
         </span>
+
+        {item.puntuacion !== null && item.puntuacion !== undefined && (
+          <p style={styles.puntuacion}>⭐ {item.puntuacion} / 10</p>
+        )}
+
+        <div style={styles.progressSection}>
+          <div style={styles.progressLabel}>
+            <span>Progreso</span>
+            <span>{capLeidos} / {capTotales || '?'} — {progreso}%</span>
+          </div>
+          <div style={styles.progressBar}>
+            <div style={{ ...styles.progressFill, width: `${progreso}%`, background: colorBarra }} />
+          </div>
+        </div>
+
+        <p style={styles.fecha}>Agregado: {new Date(item.fechaRegistro).toLocaleDateString('es-GT')}</p>
       </div>
 
-      {/* Notas */}
-      {item.notas && <p style={styles.notas}>{item.notas}</p>}
-
-      {/* Atributos JSON */}
-      {Object.keys(item.atributos || {}).length > 0 && (
-        <details style={styles.details}>
-          <summary style={styles.summary}>Atributos JSON</summary>
-          <pre style={styles.pre}>{JSON.stringify(item.atributos, null, 2)}</pre>
-        </details>
-      )}
-
-      {/* Acciones */}
       <div style={styles.acciones}>
         <button onClick={() => onEditar(item)} style={styles.btnEdit}>Editar</button>
-        <button onClick={() => onArchivar(item.id)} style={styles.btnDanger}>Archivar</button>
+        <button onClick={handleArchivar} style={styles.btnDanger}>Archivar</button>
       </div>
     </article>
   );
 }
 
 const styles = {
-  card: {
-    background: 'var(--surface)',
-    border: '1.5px solid var(--border)',
-    borderRadius: 'var(--radius)',
-    padding: '1.2rem',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.6rem',
-    transition: 'border-color 0.2s',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  categoria: {
-    fontSize: '0.75rem',
-    color: 'var(--text-muted)',
-    fontWeight: 600,
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-  },
-  badge: {
-    fontSize: '0.75rem',
-    fontWeight: 700,
-    border: '1px solid',
-    borderRadius: 20,
-    padding: '2px 10px',
-  },
-  nombre: {
-    fontSize: '1rem',
-    fontWeight: 700,
-    lineHeight: 1.3,
-  },
-  meta: {
-    display: 'flex',
-    gap: '1rem',
-    alignItems: 'center',
-    fontSize: '0.82rem',
-  },
-  notas: {
-    fontSize: '0.85rem',
-    color: 'var(--text-muted)',
-    lineHeight: 1.5,
-    borderLeft: '3px solid var(--border)',
-    paddingLeft: '0.6rem',
-  },
-  details: { fontSize: '0.8rem' },
-  summary: { cursor: 'pointer', color: 'var(--text-muted)' },
-  pre: {
-    background: 'var(--surface2)',
-    borderRadius: 6,
-    padding: '0.5rem',
-    marginTop: '0.4rem',
-    overflow: 'auto',
-    fontSize: '0.75rem',
-    fontFamily: 'monospace',
-  },
-  acciones: { display: 'flex', gap: '0.5rem', marginTop: '0.3rem' },
+  card: { background: 'var(--surface)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden', display: 'flex', flexDirection: 'column' },
+  coverWrap: { position: 'relative', height: 160, background: 'var(--surface2)', overflow: 'hidden' },
+  coverImg: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' },
+  coverFallback: { width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' },
+  estadoBadge: { position: 'absolute', top: 8, right: 8, fontSize: '0.7rem', fontWeight: 700, padding: '3px 10px', borderRadius: 20 },
+  body: { padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.4rem', flex: 1 },
+  titulo: { fontSize: '1rem', fontWeight: 700, lineHeight: 1.3 },
+  autor: { fontSize: '0.8rem', color: 'var(--text-muted)' },
+  genero: { fontSize: '0.7rem', fontWeight: 700, borderRadius: 20, padding: '2px 10px', alignSelf: 'flex-start' },
+  puntuacion: { fontSize: '0.85rem' },
+  progressSection: { marginTop: '0.3rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' },
+  progressLabel: { display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)' },
+  progressBar: { height: 6, background: 'var(--surface2)', borderRadius: 6, overflow: 'hidden' },
+  progressFill: { height: '100%', borderRadius: 6, transition: 'width 0.3s' },
+  fecha: { fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.2rem' },
+  acciones: { display: 'flex', gap: '0.5rem', padding: '0.8rem 1rem', borderTop: '1px solid var(--border)' },
   btnEdit: { background: 'var(--surface2)', color: 'var(--text)', flex: 1 },
-  btnDanger: { background: '#ef44441a', color: 'var(--danger)', border: '1px solid var(--danger)', flex: 1 },
+  btnDanger: { background: 'var(--danger-bg)', color: 'var(--danger)', border: '1px solid var(--danger)', flex: 1 },
 };
