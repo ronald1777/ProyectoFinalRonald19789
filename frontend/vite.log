@@ -1,0 +1,17 @@
+
+> frontend@0.0.1 dev
+> vite --host 127.0.0.1
+
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m632[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5173[22m/[39m
+[2m9:55:26 p. m.[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mdist/index.html[22m
+[2m9:55:28 p. m.[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mdist/index.html[22m
+[2m10:07:46 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx[22m
+[2m10:07:47 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Graficas.jsx[22m
+[2m10:08:19 p. m.[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mdist/index.html[22m
+[2m10:08:21 p. m.[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mdist/index.html[22m
+[2m10:08:29 p. m.[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/Graficas.jsx[22m
+[2m10:08:43 p. m.[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mdist/index.html[22m
+[2m10:08:45 p. m.[22m [36m[1m[vite][22m[39m [32mpage reload [39m[2mdist/index.html[22m
