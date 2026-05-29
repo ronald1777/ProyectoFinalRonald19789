@@ -1,21 +1,17 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import itemsRouter from './routes/items.js';
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// Parsea el body de las peticiones como JSON
 app.use(express.json());
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-}));
-
-
+app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:5173' }));
 app.use('/api/items', itemsRouter);
-// Ruta raíz de verificación ("health check")
+
 app.get('/', (req, res) => {
-  res.json({ mensaje: 'Backend Fase 1 funcionando ✅', endpoints: [
+  res.json({ mensaje: 'Backend Manga Tracker — Supabase ✅', endpoints: [
     'GET    /api/items',
     'POST   /api/items',
     'PUT    /api/items/:id',
@@ -25,5 +21,6 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor encendido en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor en http://localhost:${PORT}`);
+  console.log(`📦 Supabase: ${process.env.SUPABASE_URL}`);
 });
