@@ -1,4 +1,3 @@
-# ProyectoFinalRonald19789
 # ProyectoFinalRonald19789 - Manga Tracker
 
 Proyecto de Fase 3 con React, `useReducer`, Recharts, optimizacion con `useMemo`/`useCallback` y backend conectado a Supabase/PostgreSQL.
