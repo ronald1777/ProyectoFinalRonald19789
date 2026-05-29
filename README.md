@@ -64,10 +64,11 @@ La grafica original es un `PieChart` de cantidad por estado. Muestra cuantos man
 
 ## Implementación de filtro
 <img width="1860" height="1013" alt="image" src="https://github.com/user-attachments/assets/446622ac-81dc-4ca8-a0f7-e8ead17a4b4a" />
-
+## Muestra de las Gráficas funcionando
 <img width="1335" height="862" alt="image" src="https://github.com/user-attachments/assets/594579ba-5236-4213-be88-e993d66b991e" />
+## Muestra de los elementos de la base de datos de SUPABASE
 <img width="1761" height="788" alt="image" src="https://github.com/user-attachments/assets/0f8c0dc0-f69f-4132-b68c-1372c8bfc50b" />
-## Cambia segun los filtros
+## Cambio de las gráficas segun los filtros
 <img width="1389" height="772" alt="image" src="https://github.com/user-attachments/assets/5ca2495d-2d0a-469f-b7e6-465a1893d7b3" />
 
 
