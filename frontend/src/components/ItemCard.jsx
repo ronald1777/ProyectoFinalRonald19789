@@ -1,12 +1,9 @@
-import { useRef } from 'react';
+import { memo } from 'react';
 import { ESTADOS, calcularProgreso, COLOR_ESTADO } from '../utils/itemUtils';
 import { getCategoriaById } from '../utils/categorias';
-import { useStorage } from '../context/StorageContext';
 
-export default function ItemCard({ item, onEditar, onRecargar, isLast, lastRef }) {
-  const { eliminarItem } = useStorage();
-  const categoria = getCategoriaById(item.categoriaId);
-
+const ItemCard = memo(function ItemCard({ item, onEditar, onArchivar }) {
+  const categoria  = getCategoriaById(item.categoriaId);
   const estadoLabel = ESTADOS.find((e) => e.value === item.estado)?.label || item.estado;
   const { capLeidos = 0, capTotales = 0, portadaUrl = '' } = item.atributos || {};
   const progreso   = calcularProgreso(item.atributos);
@@ -19,16 +16,8 @@ export default function ItemCard({ item, onEditar, onRecargar, isLast, lastRef }
     dropped:    { color: 'var(--danger)',   bg: 'var(--danger-bg)' },
   }[item.estado] || { color: 'var(--text-muted)', bg: 'transparent' };
 
-  async function handleArchivar() {
-    await eliminarItem(item.id);
-    onRecargar();
-  }
-
   return (
-    // useRef #3 (scroll) — lastRef llega del padre; se adjunta al último card
-    <article ref={isLast ? lastRef : null} style={styles.card}>
-
-      {/* Portada */}
+    <article style={styles.card}>
       <div style={styles.coverWrap}>
         {portadaUrl
           ? <img src={portadaUrl} alt={item.nombre} style={styles.coverImg}
@@ -40,20 +29,15 @@ export default function ItemCard({ item, onEditar, onRecargar, isLast, lastRef }
         </span>
       </div>
 
-      {/* Cuerpo */}
       <div style={styles.body}>
         <h3 style={styles.titulo}>{item.nombre}</h3>
         {item.notas && <p style={styles.autor}>{item.notas}</p>}
-
-        {/* Badge de categoría con color propio */}
         <span style={{ ...styles.genero, background: categoria.color + '22', color: categoria.color }}>
           {categoria.emoji} {categoria.nombre}
         </span>
-
         {item.puntuacion !== null && item.puntuacion !== undefined && (
           <p style={styles.puntuacion}>⭐ {item.puntuacion} / 10</p>
         )}
-
         <div style={styles.progressSection}>
           <div style={styles.progressLabel}>
             <span>Progreso</span>
@@ -63,17 +47,18 @@ export default function ItemCard({ item, onEditar, onRecargar, isLast, lastRef }
             <div style={{ ...styles.progressFill, width: `${progreso}%`, background: colorBarra }} />
           </div>
         </div>
-
         <p style={styles.fecha}>Agregado: {new Date(item.fechaRegistro).toLocaleDateString('es-GT')}</p>
       </div>
 
       <div style={styles.acciones}>
         <button onClick={() => onEditar(item)} style={styles.btnEdit}>Editar</button>
-        <button onClick={handleArchivar} style={styles.btnDanger}>Archivar</button>
+        <button onClick={() => onArchivar(item.id)} style={styles.btnDanger}>Archivar</button>
       </div>
     </article>
   );
-}
+});
+
+export default ItemCard;
 
 const styles = {
   card: { background: 'var(--surface)', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', overflow: 'hidden', display: 'flex', flexDirection: 'column' },
